@@ -1,4 +1,4 @@
-#Formatting CLI
+# Formatting CLI
 Learning using the **argparse** bibliothek for formating console line input.
 Give user help and construct the default arguments.
 

@@ -1,4 +1,4 @@
-#List Comprehension and Generators
+# List Comprehension and Generators
 **List Comprehension** - fast, but memory expansive  (e.g. `[i for i in range(n)]`) 
 > creates all elements of an array and save them
  
