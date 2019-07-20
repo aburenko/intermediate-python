@@ -40,7 +40,7 @@ forecast_col = 'Adj. Close'
 df.fillna(-99999, inplace=True)
 # round to upper floor the number of days out
 # so we want to predict with n days before
-forecast_out = int(math.ceil(0.01 * len(df)))
+forecast_out = int(math.ceil(0.1 * len(df)))
 print("length of df is {} and forecast_out is {}".format(len(df), forecast_out))
 # creating label
 # shift shifts the rows down, so with negative number it will
@@ -55,8 +55,8 @@ X = np.array(df.drop(['label'], 1))
 # becomes values between 0 and 1
 X = preprocessing.scale(X)
 
-X = X[:-forecast_out]
 X_lately = X[-forecast_out:]
+X = X[:-forecast_out]
 # y is only the label
 # delete not a number values
 df.dropna(inplace=True)
@@ -65,7 +65,7 @@ y = np.array(df['label'])
 # there are train and test X and y
 # we want to use different variables because we want test
 # the classifier on other data than we trained it on
-# test size specifies how many data in percent we want to use
+# test size specifies how many data in percent we want to use for the test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 clf = LinearRegression(n_jobs=-1)
