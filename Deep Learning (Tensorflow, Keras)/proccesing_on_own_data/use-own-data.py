@@ -1,50 +1,29 @@
-'''
-input -> weight -> hidden layer 1 (activation function)
--> weigths -> hidden layer 2 (activation function) -> weights
--> output layer
-this called feed forward
-
-compare output to intended output -> cost or loss function (cross entropy)
--> optimization function (optimizer) -> minimize cost (AdamOptimizer, SDG, AdaGrad, ...)
-this called backpropagation
-
-feed forward + backprop = epoch
-
-
-biases:
-(input_data * weights) + biases
-idea: some neurons can fire even if weights are 0
-'''
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
-# one hot = only one runs rest are off
-mnist = input_data.read_data_sets('/tmp/data', one_hot=True)
+import pickle
+import numpy as np
 
-# 10 classes, 0-9
-'''
-one_hot makes this:
-0 = [1,0,0,0,0,0,0,0,0]
-1 = [0,1,0,0,0,0,0,0,0]
-2 = [0,0,1,0,0,0,0,0,0] and so on
-'''
+with open('sentiment_set.pickle', 'rb') as f:
+    train_x, train_y, test_x, test_y = pickle.load(f)
+
 # number of nodes in hidden layers
 n_nodes_hl1 = 500
 n_nodes_hl2 = 500
 n_nodes_hl3 = 500
 
-n_classes = 10
+# number of classes
+n_classes = 2
 # take 100 images at time (has only limited RAM)
 batch_size = 100
 
 # matrix is height x width
 # flatten the input to array of values
-x = tf.placeholder('float', [None, 784])
+x = tf.placeholder('float', [None, len(train_x[0])])
 y = tf.placeholder('float',)
 
 
 def neural_network_model(data):
     # create a tensor(big array) with random weights
-    hidden_1_layer = {'weights': tf.Variable(tf.random_normal([784, n_nodes_hl1])),
+    hidden_1_layer = {'weights': tf.Variable(tf.random_normal([len(train_x[0]), n_nodes_hl1])),
                       'biases': tf.Variable(tf.random_normal([n_nodes_hl1]))}
 
     hidden_2_layer = {'weights': tf.Variable(tf.random_normal([n_nodes_hl1, n_nodes_hl2])),
@@ -85,15 +64,24 @@ def train_neural_network(x):
 
         for epoch in range(hm_epochs):
             epoch_loss = 0
-            for _ in range(int(mnist.train.num_examples / batch_size)):
-                epoch_x, epoch_y = mnist.train.next_batch(batch_size)
-                _, c = sess.run([optimizer, cost], feed_dict={x: epoch_x, y: epoch_y})
+
+            i = 0
+            while i < len(train_x):
+                start = i
+                end = i + batch_size
+
+                batch_x = np.array(train_x[start:end])
+                batch_y = np.array(train_y[start:end])
+
+                _, c = sess.run([optimizer, cost], feed_dict={x: batch_x, y: batch_y})
                 epoch_loss += c
-            print("Epoch", epoch, "completed out of", hm_epochs, 'loss:', epoch_loss)
+                i += batch_size
+
+            print("Epoch", epoch + 1, "completed out of", hm_epochs, 'loss:', epoch_loss)
 
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
         accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        print("Accuracy: ", accuracy.eval({x:mnist.test.images, y: mnist.test.labels}))
+        print("Accuracy: ", accuracy.eval({x: test_x, y: test_y}))
+
 
 train_neural_network(x)
-
