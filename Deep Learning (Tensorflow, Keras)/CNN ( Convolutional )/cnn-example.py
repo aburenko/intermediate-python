@@ -55,15 +55,14 @@ def neural_network_model(x):
     # reshape flat image inputs to 28*28
     x = tf.reshape(x, shape=[-1, 28, 28, 1])
 
-    conv1 = conv2d(x, weights['W_conv1']) + biases['B_conv1']
+    conv1 = tf.nn.relu(conv2d(x, weights['W_conv1']) + biases['B_conv1'])
     conv1 = maxpool2d(conv1)
 
-    conv2 = conv2d(conv1, weights['W_conv2']) + biases['B_conv2']
+    conv2 = tf.nn.relu(conv2d(conv1, weights['W_conv2']) + biases['B_conv2'])
     conv2 = maxpool2d(conv2)
 
     fc = tf.reshape(conv2, [-1, 7 * 7 * 64])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['B_fc'])
-
     fc = tf.nn.dropout(fc, keep_rate)
 
     output = tf.matmul(fc, weights['out']) + biases['out']
